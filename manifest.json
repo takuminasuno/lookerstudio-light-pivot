@@ -1,0 +1,25 @@
+{
+    "name": "Community Visualization",
+    "logoUrl": "https://raw.githubusercontent.com/googledatastudio/community-visualizations/master/docs/codelab/img/table-chart.png",
+    "organization": "Takumi Nasuno",
+    "organizationUrl": "https://",
+    "termsOfServiceUrl": "https://",
+    "supportUrl": "https://",
+    "packageUrl": "https://",
+    "privacyPolicyUrl": "https://",
+    "description": "Community Visualization",
+    "devMode": true,
+    "components": [
+        {
+            "id": "lightPivot",
+            "name": "Light Pivot",
+            "iconUrl": "https://raw.githubusercontent.com/googledatastudio/community-visualizations/master/docs/codelab/img/table-chart.png",
+            "description": "Light Pivot Table for visualizing Survey Data",
+            "resource": {
+                "js": "gs://looker-studio-vis/light-pivot-revised/viz-codelab.js",
+                "config": "gs://looker-studio-vis/light-pivot-revised/viz-codelab.json",
+                "css": "gs://looker-studio-vis/light-pivot-revised/viz-codelab.css"
+            }
+        }
+    ]
+}

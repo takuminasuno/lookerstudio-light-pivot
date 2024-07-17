@@ -1,0 +1,63 @@
+{
+    "data": [
+        {
+            "id": "dataFields",
+            "label": "Data fields",
+            "elements": [
+                {
+                    "id": "row",
+                    "label": "Row dimension",
+                    "type": "DIMENSION",
+                    "options":{
+                        "min": 1,
+                        "max": 6
+                    }
+                },
+                {
+                    "id": "column",
+                    "label": "Column dimension",
+                    "type": "DIMENSION",
+                    "options":{
+                        "min": 1,
+                        "max": 6
+                    }
+                },
+                {
+                    "id": "metric",
+                    "label": "Metric",
+                    "type": "METRIC",
+                    "options":{
+                        "min": 1,
+                        "max": 6
+                    }
+                }
+            ]
+        }
+    ],
+    "style": [
+        {
+            "id": "boxDesign1",
+            "label": "Border Radius",
+            "elements": [
+                {
+                    "type": "BORDER_RADIUS",
+                    "id": "borderRadius",
+                    "label": "Border Radius",
+                    "defaultValue": 5
+                }            
+            ]
+        },
+        {
+            "id": "boxDesign2",
+            "label": "Box shadow",
+            "elements": [
+                {
+                    "type": "CHECKBOX",
+                    "id": "boxShadow",
+                    "label": "Has box shadow",
+                    "defaultValue": true
+                }            
+            ]
+        }
+    ]
+}
