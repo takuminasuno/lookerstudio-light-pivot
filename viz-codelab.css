@@ -30,6 +30,7 @@ tr {
 }
 th, td {
     padding: 4px;
+    vertical-align: top;
 }
 tbody th, tbody td {
     border-left: 3px solid #FFFFFF;
