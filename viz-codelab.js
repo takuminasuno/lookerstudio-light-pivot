@@ -80,7 +80,7 @@ function drawViz(data) {
                     }
                 } 
             });
-            headerRow.filter((d, i) => i >= rowFields.length && d === '').remove();
+        headerRow.filter((d, i) => i >= rowFields.length && d === '').remove();
     });
 
     // Create body rows
@@ -107,7 +107,7 @@ function drawViz(data) {
         .classed('tside', (d, colIndex) => colIndex < rowFields.length);
     
     // Process rowspans after all cells are created
-    rowFields.forEach((_, colIndex) => {
+    for (let colIndex = rowFields.length - 1; colIndex >= 0; colIndex--) {
         tbodyRows.forEach((row, rowIndex) => {
             if (row[colIndex] !== '') {
                 let span = 1;
@@ -128,7 +128,7 @@ function drawViz(data) {
                 }
             }
         });
-    });
+    }
 
     // Set parameter designs
     table.style.borderRadius = data.style.borderRadius.value.BORDER_RADIUS;
