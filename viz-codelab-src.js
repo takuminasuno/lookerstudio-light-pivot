@@ -27,9 +27,9 @@ function drawViz(data) {
 
     // Create description
     const description = thead.append('tr').append('th')
-        .text(columnFields.join(' / ') + ' / ' + metricFields.join(' / '))
+        .text(columnFields.join(' / ') + ' / ' + metricFields.join('・'))
         .attr('class', 'description')
-        .attr('colSpan', theadRows[0].length)
+        .attr('colspan', theadRows[0].length)
     
     // Create headers
     theadRows.forEach(row => {
@@ -41,21 +41,24 @@ function drawViz(data) {
             .text(d => d)
             .classed('tside', (d, colIndex) => colIndex < rowFields.length)
             .each(function(d, colIndex) {
-                if (d !== ''){
-                    let span = 1;
-                    while (colIndex + span < row.length && row[colIndex + span] === '') {
-                        span++;
-                    }
-                    if (span > 1) {
-                        d3.select(this).attr('colspan', span);
-                    }
-                } 
+                let span = 1;
+                while (colIndex + span < row.length && row[colIndex + span] === '') {
+                    span++;
+                }
+                if (span > 1) {
+                    d3.select(this).attr('colspan', span);
+                }
             });
-        headerRow.filter((d, i) => i >= rowFields.length && d === '').remove();
+        headerRow.filter((d, i) => i > 0 && d === '').remove();
     });
 
     // Create body rows
-    const formatter = new Intl.NumberFormat();
+    const columnTypeList = getColummTypeList(tbodyRows,0);
+    const integerFormatter = new Intl.NumberFormat('ja-JP');
+    const decimalFormatter = new Intl.NumberFormat('ja-JP', {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1
+    });
     const rows = tbody.selectAll('tr')
         .data(tbodyRows)
         .enter()
@@ -64,13 +67,13 @@ function drawViz(data) {
         .data(d => d)
         .enter()
         .append('td')
-        .text(d => {
-            if (typeof d === 'number') {
-                if (Number.isInteger(d)){
-                    return formatter.format(d);
-                } else {
-                    return formatter.format(Math.round(d * 10) / 10);
-                }
+        .text((d,colIndex) => {
+            // assign appropriate formatter based on columnType (*null is changed to '-')
+            const columnType = columnTypeList[colIndex];
+            if (columnType === 'integer') {
+                return d !== null ? integerFormatter.format(d) : '-';
+            } else if (columnType === 'decimal') {
+                return d !== null ? decimalFormatter.format(Math.round(d * 10) / 10) : '-';
             } else {
                 return d;
             }
@@ -101,121 +104,113 @@ function drawViz(data) {
         });
     }
 
+    /*
     // Set parameter designs
     table.style.borderRadius = data.style.borderRadius.value.BORDER_RADIUS;
     if (data.style.boxShadow.value.CHECKBOX){
         table.style.boxShadow = "rgba(0,0,0,0.14) 0px 2px 2px 0px, rgba(0,0,0,0.2) 0px 1px 1px 0px, rgba(0,0,0,0.12) 0px 1px 5px 0px";
     }
+    */
 
     // add event listeners
-    /*
-    table.selectAll('th:not(.description), td')
+    table.selectAll('td:not(.tside)')
         .on('mouseover', handleMouseOver)
         .on('mouseout', handleMouseOut);
 
     function handleMouseOver(event) {
-        const cell = event.target;
-        const table = cell.closest('table');
-        const allRows = Array.from(table.querySelectorAll('tr'));
+        const cell = d3.select(this);
+        const cellPosition = getCellPosition(this);
         
         clearHighlights();
-    
-        const { colIndex, rowIndex } = getCellIndices(cell);
-    
-        highlightRowsAndColumns(allRows, rowIndex, colIndex);
-    
-        // セルのハイライト
-        d3.select(cell).classed('highlight-cell', true);
-    }
-    
-    function getCellIndices(cell) {
-        const row = cell.closest('tr');
-        const allRows = Array.from(row.closest('table').querySelectorAll('tr'));
-        const rowIndex = allRows.indexOf(row);
-        
-        let colIndex = 0;
-        let currentCell = row.firstElementChild;
-        while (currentCell !== cell) {
-            colIndex += parseInt(currentCell.getAttribute('colspan') || 1);
-            currentCell = currentCell.nextElementSibling;
-        }
-        
-        return { colIndex, rowIndex };
-    }
-    
-    function highlightRowsAndColumns(allRows, targetRowIndex, targetColIndex) {
-        let currentRowIndex = 0;
-        let rowspans = [];
-        let highestRowspan = 1;
-    
-        allRows.forEach((row, rowIndex) => {
-            let currentColIndex = 0;
-            let isRowHighlighted = false;
-    
-            Array.from(row.cells).forEach(cell => {
-                const rowspan = parseInt(cell.getAttribute('rowspan') || 1);
-                const colspan = parseInt(cell.getAttribute('colspan') || 1);
-    
-                // 行のハイライト
-                if (currentRowIndex <= targetRowIndex && targetRowIndex < currentRowIndex + rowspan) {
-                    d3.select(cell).classed('highlight-row', true);
-                    isRowHighlighted = true;
-                    highestRowspan = Math.max(highestRowspan, rowspan);
+
+        // highlighting cell
+        cell.classed("highlight-cell", true);
+
+        // highlighting row
+        const table = d3.select(cell.node().closest('table'));
+        table.selectAll("thead tr, tbody tr").each(function(row,rowIndex) {
+            // processing row
+            d3.select(this).selectAll("td, th:not(.description)").each(function(cell,colIndex) {
+                const rowspan = parseInt(d3.select(this).attr("rowspan")) || 1;
+                if (rowIndex <= cellPosition.rowIndex && cellPosition.rowIndex < rowIndex + rowspan) {
+                    d3.select(this).classed("highlight-row", true);
                 }
-    
-                // 列のハイライト
-                if (currentColIndex <= targetColIndex && targetColIndex < currentColIndex + colspan) {
-                    for (let i = 0; i < rowspan; i++) {
-                        if (rowIndex + i < allRows.length) {
-                            const cellToHighlight = getCellAtIndex(allRows[rowIndex + i], currentColIndex);
-                            if (cellToHighlight) {
-                                d3.select(cellToHighlight).classed('highlight-col', true);
-                            }
-                        }
-                    }
-                }
-    
-                // rowspanの更新
-                while (rowspans.length <= currentColIndex) {
-                    rowspans.push(0);
-                }
-                for (let i = 0; i < colspan; i++) {
-                    rowspans[currentColIndex + i] = Math.max(rowspans[currentColIndex + i], rowspan);
-                }
-    
-                currentColIndex += colspan;
             });
-    
-            // rowspanによる行のハイライト
-            if (isRowHighlighted) {
-                for (let i = 1; i < highestRowspan; i++) {
-                    if (rowIndex + i < allRows.length) {
-                        d3.select(allRows[rowIndex + i]).classed('highlight-row', true);
+        });
+
+        // highlighting column
+        const rowCount = table.selectAll('tr').size();
+        let rowspanStock = Array(rowCount).fill(0);
+        table.selectAll("thead tr, tbody tr").each(function(row,rowIndex) {
+            
+            let colspanStock = 0;
+            d3.select(this).selectAll("td, th:not(.description)").each(function(cell,colIndex) {
+                const rowspan = parseInt(d3.select(this).attr("rowspan")) || 1;
+                if (rowspan > 1){
+                    for (let i = 1; i < rowspan; i++){
+                        rowspanStock[rowIndex + i]++;
                     }
                 }
-            }
-    
-            // rowspanの減少
-            rowspans = rowspans.map(span => Math.max(0, span - 1));
-    
-            currentRowIndex++;
+                const colspan = parseInt(d3.select(this).attr("colspan")) || 1;
+                const adjustedColIndex = rowspanStock[rowIndex] + colIndex + colspanStock;
+                if (adjustedColIndex <= cellPosition.colIndex && cellPosition.colIndex < adjustedColIndex + colspan) {
+                    d3.select(this).classed("highlight-col", true);
+                }
+                if (colspan > 1){
+                    colspanStock += colspan - 1;
+                }
+            });
         });
     }
-    
-    function getCellAtIndex(row, targetIndex) {
-        let currentIndex = 0;
-        for (const cell of row.cells) {
-            const colspan = parseInt(cell.getAttribute('colspan') || 1);
-            if (currentIndex <= targetIndex && targetIndex < currentIndex + colspan) {
-                return cell;
+
+    // returns cell's rowIndex and colIndex
+    // considering the existence of thead and tbody, including rowspan and colspan, but expecting no cells with both rowpsan and colspan
+    function getCellPosition(cell) {
+
+        // get indexes from table structure
+        const row = cell.parentNode;
+        const table = row.parentNode.parentNode;
+        const allRows = Array.from(table.querySelectorAll("thead tr, tbody tr"));
+        const originalRowIndex = allRows.indexOf(row);
+        const originalColIndex = Array.from(row.cells).indexOf(cell);
+
+        // adjusting rowIndex considering colspan in previous cells
+        let rowIndex = originalRowIndex;
+
+        // adjusting colIndex considering rowspan in previous cells
+        let colIndex = originalColIndex;
+        let unmergedCellCount;
+        for (let i = 0; i < originalRowIndex; i++) {
+            const prevRow = allRows[i];
+            unmergedCellCount = 0;
+            for (let j = 0; j < prevRow.children.length; j++) {
+                const prevCell = prevRow.children[j];
+                const rowspan = parseInt(prevCell.getAttribute("rowspan")) || 1;
+                if (rowspan == 1){
+                    unmergedCellCount++;
+                    if (unmergedCellCount > originalColIndex){
+                        break;
+                    }
+                } else if (i + rowspan > originalRowIndex) {
+                    colIndex++;
+                }
             }
-            currentIndex += colspan;
         }
-        return null;
-    }
+        return {
+            rowIndex: rowIndex,
+            colIndex: colIndex
+        };
+    }    
     
     function handleMouseOut(event) {
         if (!event.target.closest('table').contains(event.relatedTarget)) {
+            clearHighlights();
+        }
+        const cell = d3.select(event.target);
+        const table = d3.select(cell.node().closest('table'));
+        
+        if (!table.selectAll('td:not(.tside)').nodes().includes(event.relatedTarget)) {
+        //if (!cell.classed('tside') && !table.selectAll('td:not(.tside)').nodes().includes(event.relatedTarget)) {
             clearHighlights();
         }
     }
@@ -226,7 +221,6 @@ function drawViz(data) {
             .classed('highlight-col', false)
             .classed('highlight-cell', false);
     }
-    */
 
 }
 
@@ -328,14 +322,55 @@ function sortTable(table, fixedRowCount, columnsToSort) {
     const fixedTable = table.slice(0, fixedRowCount);
     const sortedTable = table.slice(fixedRowCount);
 
-    for (let i = columnsToSort - 1; i >= 0; i--) {
-        sortedTable.sort((a, b) => {
-            if (a[i] < b[i]) return -1;
-            if (a[i] > b[i]) return 1;
-            return 0;
-        });
+    if (sortedTable.length == 1){
+        return table;
+    }
+    for (let i = columnsToSort - 1; i >= 0; i--) {        
+        if (isNumberColumn(sortedTable,i)) {
+            //sort as numbers
+            sortedTable.sort((a, b) => {
+                if (a[i] == '' && b[i] == '') return 0;
+                if (a[i] == '') return 1;
+                if (b[i] == '') return -1;
+                return Number(a[i]) - Number(b[i]);
+            });
+        } else {
+            //sort as texts
+            sortedTable.sort((a, b) => {
+                if (a[i] == '' && b[i] == '') return 0;
+                if (a[i] == '') return 1;
+                if (b[i] == '') return -1;
+                if (a[i] < b[i]) return -1;
+                if (a[i] > b[i]) return 1;
+                return 0;
+            });
+        }   
     }
     return [...fixedTable, ...sortedTable];
+}
+
+//returns whether the column is all numbers or not
+function isNumberColumn(table, columnIndex){
+    if (table.length === 0) {
+        return false;
+    }
+    for (let rowIndex = 0; rowIndex < table.length; rowIndex++){
+        if (isNumberCell(table[rowIndex][columnIndex]) == false){
+            return false;
+        }
+    }
+    return true;
+}
+
+// returns whether the cells is a number or not
+function isNumberCell(cell){
+    if (typeof cell === 'number'){
+        return true;
+    }
+    if (!isNaN(Number(cell))){
+        return true;
+    }
+    return false;
 }
 
 // return transposed table
@@ -355,22 +390,77 @@ function transposeTable(table) {
 function resolveFixedCellsDuplication(table, fixedRowCount, fixedColumnCount){
 
     // resolve duplications in fixed rows
-    for (let iRow = 0; iRow < fixedRowCount; iRow++) {
-        for (let iCol = table[0].length - 1; iCol > 1; iCol--) {
-            if (table[iRow][iCol] === table[iRow][iCol - 1]) {
-                table[iRow][iCol] = '';
+    for (let rowIndex = fixedRowCount - 1; rowIndex >= 0; rowIndex--) {
+        for (let colIndex = table[rowIndex].length - 1; colIndex > 1; colIndex--) {
+            //if (table[rowIndex][colIndex] === table[rowIndex][colIndex - 1]) {
+            if (extractColumnJSON(table,colIndex,rowIndex) === extractColumnJSON(table,colIndex - 1,rowIndex)){
+                table[rowIndex][colIndex] = '';
             }
+            //table[rowIndex][colIndex] = extractColumnJSON(table,colIndex,rowIndex) + '<br><br>' + extractColumnJSON(table,colIndex-1,rowIndex)
         }
     }
     // resolve duplications in fixed columns
-    for (let iCol = 0; iCol < fixedColumnCount; iCol++) {
-        for (let iRow = table.length - 1; iRow > 1; iRow--) {
-            if (table[iRow][iCol] === table[iRow - 1][iCol]) {
-                table[iRow][iCol] = '';
+    for (let colIndex = fixedColumnCount - 1; colIndex >= 0; colIndex--) {
+        for (let rowIndex = table.length - 1; rowIndex > 1; rowIndex--) {
+            //if (table[rowIndex][colIndex] === table[rowIndex - 1][colIndex]) {
+            if (extractRowJSON(table,rowIndex,colIndex) === extractRowJSON(table,rowIndex - 1,colIndex)){
+                table[rowIndex][colIndex] = '';
             }
         }
     }
     return table;
+}
+function extractColumnJSON(table,colIndex,rowCount){
+    let cells = [];
+    for (let i = 0; i < rowCount + 1; i++){
+        cells.push(table[i][colIndex]);
+    }
+    return JSON.stringify(cells);
+}
+function extractRowJSON(table,rowIndex,colCount){
+    return JSON.stringify(table[rowIndex].slice(0,colCount + 1));
+}
+
+// returns array of data type [integer, decimal, text] for each column
+function getColummTypeList(inputTable, headerRowCount){
+    
+    const table = inputTable.slice(headerRowCount);
+
+    let columnTypeList = [];
+    for (let colIndex = 0; colIndex < table[0].length; colIndex++){
+
+        // check each cell to find column data type
+        // one cell is text => text
+        // all cells are number but include decimal => decimal
+        // all cells are integer => integer
+        let columnType = 'integer';
+        for (let rowIndex = 0; rowIndex < table.length; rowIndex++){
+            const dataType = getDataType(table[rowIndex][colIndex]);
+            if (dataType == 'text'){
+                columnType = 'text';
+                break; 
+            } else if (dataType == 'decimal'){
+                columnType = 'decimal';
+            }
+        }
+        columnTypeList.push(columnType);
+    }
+    return columnTypeList;
+}
+
+// returns data type [integer, decimal, text] for cell
+function getDataType(cell){
+    if (typeof cell === 'number') {
+        if (Number.isInteger(cell)){
+            return 'integer';
+        } else {
+            return 'decimal';
+        }
+    }
+    if (cell === null || cell === undefined || cell === ''){
+        return 'integer';
+    }
+    return 'text';
 }
 
 // Subscribe to data and style changes. Use the table format for data.

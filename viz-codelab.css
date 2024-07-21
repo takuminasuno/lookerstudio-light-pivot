@@ -1,9 +1,16 @@
+:root {
+    --main-bg-color: rgb(255,255,255);
+    --dark-color: rgb(229,229,229);
+    --light-color: rgb(243,243,243);
+    --highlight-dark-color: rgb(244,244,153);
+    --highlight-light-color: rgb(249,249,204);
+}
 table {
     width: 100%;
     border-collapse: collapse;
     font-size: 12px;
     word-wrap: break-word;
-    background-color: #FFFFFF;
+    background-color: var(--main-bg-color);
 }
 thead {
     position: sticky;
@@ -11,18 +18,17 @@ thead {
     z-index: 2;
 }
 .description {
-    background-color: rgb(229,229,229);
-    text-align: right;
-    font-weight: bold;
+    background-color: var(--dark-color);
+    text-align: right !important;
+    font-weight: normal;
 }
 thead tr {
-    background-color: #FFFFFF;
+    background-color: var(--light-color);
+    box-shadow: 0 0 0 1px var(--dark-color);
     margin-bottom: 1px;
-    box-shadow: 0 1px 0 0 rgb(232,232,232);
 }
 tbody tr {
-    background-color: #FFFFFF;
-    border-bottom: 1px solid rgb(232,232,232);
+    background-color: var(--main-bg-color);
 }
 tr {
     -webkit-border-vertical-spacing: 0px;
@@ -30,13 +36,14 @@ tr {
 }
 th, td {
     padding: 4px;
+    border: 1px solid var(--dark-color);
     vertical-align: top;
-}
-tbody th, tbody td {
-    border-left: 3px solid #FFFFFF;
-    border-right: 3px solid #FFFFFF;
+    min-width: 50px;
+    max-width: 600px;
+    font-weight: normal;
 }
 th.tside, td.tside {
+    background-color: var(--light-color);
     text-align: left;
 }
 th:not(.tside), td:not(.tside) {
@@ -44,13 +51,11 @@ th:not(.tside), td:not(.tside) {
 }
 
 .highlight-row {
-    color: #000000 !important;
-    background-color: rgb(229,229,229);
+    background-color: var(--highlight-light-color) !important;
 }
 .highlight-col {
-    color: #000000 !important;
-    background-color: rgb(229,229,229);
+    background-color: var(--highlight-light-color) !important;
 }
 .highlight-cell {
-    background-color: rgb(204,204,204);
+    background-color: var(--highlight-dark-color) !important;
 }
