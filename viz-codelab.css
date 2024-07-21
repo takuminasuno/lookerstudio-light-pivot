@@ -1,5 +1,6 @@
 :root {
     --main-bg-color: rgb(255,255,255);
+    --out-bg-color: rgb(255,255,255);
     --dark-color: rgb(229,229,229);
     --light-color: rgb(251,251,251);
     --highlight-dark-color: rgb(244,244,153);
@@ -115,4 +116,20 @@ th:not(.tside), td:not(.tside) {
     background: currentColor;
     left: 3.75px;
     bottom: 3.75px
+}
+
+/* setting background color to page color so that the edge appears clear */
+#fullscreen-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--out-bg-color);
+    z-index: -1;
+    pointer-events: none;
+}
+#container, .chart-container, svg, canvas {
+    position: relative;
+    z-index: 1;
 }

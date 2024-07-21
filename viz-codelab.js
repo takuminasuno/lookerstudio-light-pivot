@@ -42,6 +42,9 @@ function drawViz(data) {
     // Pivot original table output
     const {rowFields, columnFields, metricFields, theadRows, tbodyRows} = transformTable(data.tables.DEFAULT.headers, data.tables.DEFAULT.rows);
     
+    // create background
+    const background = d3.select(container).append('div')
+        .attr('id','fullscreen-background');
 
     // create table structure
     const height = dscc.getHeight();    
