@@ -50,6 +50,7 @@ th:not(.tside), td:not(.tside) {
     text-align: right;
 }
 
+/* table hove highlighting */
 .highlight-row {
     background-color: var(--highlight-light-color) !important;
 }
@@ -58,4 +59,60 @@ th:not(.tside), td:not(.tside) {
 }
 .highlight-cell {
     background-color: var(--highlight-dark-color) !important;
+}
+
+/* description text */
+.description-text{
+    display: inline-block;
+}
+
+/* data download button */
+.buttonBox{
+    display: inline-block;
+    height: 18px;
+    width: 18px;
+    margin: 4px 4px -4px 14px;
+    cursor: pointer;
+}
+.gg-software-download {
+    box-sizing: border-box;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    transform: translateY(-50%);
+    display: inline-block;
+    transform: scale(var(--ggs,1));
+    width: 12px;
+    height: 4.5px;
+    border: 1.5px solid;
+    border-top: 0;
+    border-bottom-left-radius: 1.5px;
+    border-bottom-right-radius: 1.5px;
+    margin-top: 6px;
+    margin-left: auto;
+}
+.gg-software-download::after {
+    content: "";
+    display: inline-block;
+    box-sizing: border-box;
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-left: 1.5px solid;
+    border-bottom: 1.5px solid;
+    transform: rotate(-45deg);
+    left: 1.5px;
+    bottom: 3px
+}
+.gg-software-download::before {
+    content: "";
+    display: inline-block;
+    box-sizing: border-box;
+    position: absolute;
+    border-radius: 2.25px;
+    width: 1.5px;
+    height: 7.5px;
+    background: currentColor;
+    left: 3.75px;
+    bottom: 3.75px
 }

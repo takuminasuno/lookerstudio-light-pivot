@@ -41,19 +41,9 @@ function drawViz(data) {
 
     // Pivot original table output
     const {rowFields, columnFields, metricFields, theadRows, tbodyRows} = transformTable(data.tables.DEFAULT.headers, data.tables.DEFAULT.rows);
-
-    /*
-    let buf = '';
-    let iCol = 3;
-    for (let iRow = 0; iRow < tbodyRows.length; iRow++){
-        buf += JSON.stringify({'value':tbodyRows[iRow][iCol]}) + ':' + getDataType(tbodyRows[iRow][iCol]) + '<br>';
-    }
-    container.innerHTML = buf;
-    return;
-    */
+    
 
     // create table structure
-    const width = dscc.getWidth();
     const height = dscc.getHeight();    
     const tableContainer = d3.select(container).append('div')
         .attr('class', 'table-container')
@@ -64,12 +54,38 @@ function drawViz(data) {
     const thead = table.append('thead');
     const tbody = table.append('tbody');
 
+    // download function for csv data
+    const downloadTable = [...theadRows, ...tbodyRows];
+    const generateCSV = (downloadTable) => {
+        const rows = downloadTable.map(row => Object.values(row).map(function(cell){return '"' + cell + '"';}).join(','));
+        return rows.join('\n');
+    };
+    const generateDataURI = (csvContent) => {
+        const bomPrefix = '%EF%BB%BF';
+        const encodedContent = encodeURIComponent(csvContent);
+        return `data:text/csv;charset=shift_jis,${bomPrefix}${encodedContent}`;
+    };
+    const downloadCSV = () => {
+        const csvContent = generateCSV(downloadTable);
+        const dataURI = generateDataURI(csvContent);
+        window.open(dataURI, '_blank');
+    };
+
     // Create description
     const description = thead.append('tr').append('th')
-        .text(columnFields.join(' / ') + ' / ' + metricFields.join('・'))
         .attr('class', 'description')
-        .attr('colspan', theadRows[0].length)
-    
+        .attr('colspan', theadRows[0].length);
+    description.append('div')
+        .text(columnFields.join(' / ') + ' / ' + metricFields.join('・'))
+        .attr('class', 'description-text');
+    /*
+    const buttonBox = description.append('div')
+        .attr('class', 'buttonBox')
+        .on('click', downloadCSV);
+    buttonBox.append('div')
+        .attr('class', 'gg-software-download');
+    */
+
     // Create headers
     theadRows.forEach(row => {
         const headerRow = thead.append('tr')
