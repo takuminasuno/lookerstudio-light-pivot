@@ -78,8 +78,12 @@ function drawViz(data) {
     const description = thead.append('tr').append('th')
         .attr('class', 'description')
         .attr('colspan', theadRows[0].length);
+    const descriptionElements = columnFields;
+    if (metricFields.length > 0){
+        descriptionElements.push(metricFields.join('・'));
+    }
     description.append('div')
-        .text(columnFields.join(' / ') + ' / ' + metricFields.join('・'))
+        .text(descriptionElements.join(' / '))
         .attr('class', 'description-text');
     /*
     const buttonBox = description.append('div')

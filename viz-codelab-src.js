@@ -13,6 +13,9 @@ function drawViz(data) {
     // Pivot original table output
     const {rowFields, columnFields, metricFields, theadRows, tbodyRows} = transformTable(data.tables.DEFAULT.headers, data.tables.DEFAULT.rows);
     
+    // create background
+    const background = d3.select(container).append('div')
+        .attr('id','fullscreen-background');
 
     // create table structure
     const height = dscc.getHeight();    
@@ -46,8 +49,12 @@ function drawViz(data) {
     const description = thead.append('tr').append('th')
         .attr('class', 'description')
         .attr('colspan', theadRows[0].length);
+    const descriptionElements = columnFields;
+    if (metricFields.length > 0){
+        descriptionElements.push(metricFields.join('・'));
+    }
     description.append('div')
-        .text(columnFields.join(' / ') + ' / ' + metricFields.join('・'))
+        .text(descriptionElements.join(' / '))
         .attr('class', 'description-text');
     /*
     const buttonBox = description.append('div')
