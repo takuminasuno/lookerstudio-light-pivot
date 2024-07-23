@@ -18,7 +18,7 @@
                     "label": "Column dimension",
                     "type": "DIMENSION",
                     "options":{
-                        "min": 1,
+                        "min": 0,
                         "max": 6
                     }
                 },
@@ -27,7 +27,7 @@
                     "label": "Metric",
                     "type": "METRIC",
                     "options":{
-                        "min": 1,
+                        "min": 0,
                         "max": 6
                     }
                 }
