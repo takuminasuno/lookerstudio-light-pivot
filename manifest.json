@@ -1,24 +1,24 @@
 {
-    "name": "Community Visualization",
+    "name": "Light Pivot",
     "logoUrl": "https://raw.githubusercontent.com/googledatastudio/community-visualizations/master/docs/codelab/img/table-chart.png",
     "organization": "Takumi Nasuno",
-    "organizationUrl": "https://",
+    "organizationUrl": "https://takuminasuno.com/ja/",
     "termsOfServiceUrl": "https://",
     "supportUrl": "https://",
     "packageUrl": "https://",
     "privacyPolicyUrl": "https://",
-    "description": "Community Visualization",
+    "description": "Light Pivot Table for visualizing Simple Data",
     "devMode": true,
     "components": [
         {
             "id": "lightPivot",
             "name": "Light Pivot",
             "iconUrl": "https://raw.githubusercontent.com/googledatastudio/community-visualizations/master/docs/codelab/img/table-chart.png",
-            "description": "Light Pivot Table for visualizing Survey Data",
+            "description": "Light Pivot Table for visualizing Simple Data",
             "resource": {
-                "js": "gs://looker-studio-vis/light-pivot-revised/viz-codelab.js",
-                "config": "gs://looker-studio-vis/light-pivot-revised/viz-codelab.json",
-                "css": "gs://looker-studio-vis/light-pivot-revised/viz-codelab.css"
+                "js": "gs://{bucket_pass}/viz-codelab.js",
+                "config": "gs://{bucket_pass}/viz-codelab.json",
+                "css": "gs://{bucket_pass}/viz-codelab.css"
             }
         }
     ]
